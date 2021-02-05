@@ -1,11 +1,10 @@
 import os
 import json
 import datetime
+from sys import exit
 from flask import Flask, request
 from telegram import Message, Update
 from telegram.ext import Updater, CommandHandler
-from control import on_control
-from info import on_info
 import logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 
@@ -90,7 +89,9 @@ def on_request():
 		on_webhook(request)
 		return 'OK'
 	elif CONTROL_SECRET and request.args.get('ctrl', '') == CONTROL_SECRET:
+		from control import on_control
 		return on_control(request.args.get('action'), request)
 	else:
+		from control import on_info
 		return on_info(request.args.get('action'), request)
 
