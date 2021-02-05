@@ -1,6 +1,6 @@
 import os
 from utils import _dict_map, _make_json
-from bot import bot, WEBHOOK_SECRET
+from bot import bot, updateCommands, WEBHOOK_SECRET
 
 
 def on_control(action, request):
@@ -11,7 +11,7 @@ def on_control(action, request):
 			'setWebhook': bot.setWebhook('{}?whs={}'.format(
 				request.base_url, WEBHOOK_SECRET)),
 			'endpoint': endpoint,
-			'setMyCommands': bot.setMyCommands(bot.commands),
+			'setMyCommands': updateCommands(deleteUnused=True),
 			'commands': _dict_map(bot.commands)
 		}
 	elif action == 'off':

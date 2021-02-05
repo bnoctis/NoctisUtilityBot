@@ -9,7 +9,7 @@ def c_start(update, context):
 		user.first_name or user.last_name or user.username))
 
 
-@add_command('me')
+@add_command('me', 'Show information about your account.')
 def c_who(update, context):
 	user = update.effective_user
 	unset = lambda i: i and i or '\\_{}\\_'.format(i)

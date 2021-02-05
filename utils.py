@@ -25,5 +25,7 @@ def _make_json(data, status=200, headers=None):
 
 
 def _dict_map(iterable):
-	'''Turn an iterable of `telegram` objects into a list of dicts.'''
+	'''Turn an iterable of `telegram` objects into a list of dicts.
+
+	This is `python-telegram-bot` specific.'''
 	return [i for i in map(lambda v: v.to_dict(), iterable)]
