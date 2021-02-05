@@ -150,7 +150,7 @@ def answerInlineQueryInText(update, text, **kwargs):
 		input_message_content=InputTextMessageContent(
 			text,
 			parse_mode=kwargs.get('parse_mode', None),
-			disable_web_page_preview==kwargs.get('disable_preview', None))))
+			disable_web_page_preview==kwargs.get('disable_preview', None)))))
 
 
 def _send_debug(kind, content):
