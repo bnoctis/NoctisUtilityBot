@@ -47,6 +47,10 @@ def on_control(action, request):
 		}
 	elif action == 'env':
 		result = { 'env': os.environ }
+
+	if not result:
+		result = {}
+	result['action'] = action
 	return _make_json(result)
 
 
