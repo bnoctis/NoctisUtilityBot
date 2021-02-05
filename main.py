@@ -1,5 +1,6 @@
-from bot import bot, updater, app
-from bot import add_command, replyMessage
+from bot import bot, updater, app, add_command, add_inline_query
+from bot import replyMessage, answerInlineQueryInText
+from modules.bilibili import b23_to_full_clear
 
 
 @add_command('start')
@@ -21,3 +22,8 @@ Username:\t{}
 Lang code:\t{}'''.format(user.id,
 		not_set(user.first_name), not_set(user.last_name),
 		not_set(user.username), not_set(user.language_code)), parse_mode='md')
+
+
+@add_inline_query(pattern='https://b23.tv/([a-zA-Z0-9]{6,16})')
+def inl_b23_to_full_clear(update, context):
+	answerInlineQueryInText(update, b23_to_full_clear(update.inline_query.query))

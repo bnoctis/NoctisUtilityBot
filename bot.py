@@ -5,8 +5,9 @@ import datetime
 from sys import exit
 from flask import Flask, request
 from telegram import Message, Update
-from telegram.ext import Updater, CommandHandler
-from utils import _dict_map
+from telegram import InlineQueryResultArticle, InputTextMessageContent
+from telegram.ext import Updater, CommandHandler, InlineQueryHandler
+from utils import _dict_map, timestamp8601
 
 
 ###
@@ -99,6 +100,17 @@ def add_command(command, description=None):
 	return _add_command
 
 
+def add_inline_query(**kwargs):
+	'''Convenience decorator to add an inline query handler.
+	For (keyword) arguments, see `telegram.ext.InlineQueryHandler`.
+
+	:param pattern:
+	:param **kwargs:
+	'''
+	def _add_inline_query(callback):
+		dispatcher.add_handler(InlineQueryHandler(callback, **kwargs))
+	return _add_inline_query
+
 def sendMessage(**kwargs):
 	'''Patched `telegram.Bot.send_message`.
 	Currently provides a shorthand for `parse_mode='MarkdownV2'`.
@@ -120,6 +132,25 @@ def replyMessage(update, **kwargs):
 	sendMessage(chat_id=update.effective_chat.id,
 		reply_to_message_id=update.effective_message.message_id,
 		**kwargs)
+
+
+def answerInlineQueryInText(update, text, **kwargs):
+	'''Answer inline query in text only.
+
+	:param update: The update containing the inline query to answer.
+	:param text: Text to reply.
+	:param parse_mode: Optional. Pass `md` for `MarkdownV2`.
+	:param disable_preview: Optional. Only works if a link is present.
+	:param **kwargs: See https://core.telegram.org/bots/api#inlinequery
+	'''
+	if kwargs.get('parse_mode', None) == 'md':
+		kwargs['parse_mode'] = 'MarkdownV2'
+	update.inline_query.answer(results=(InlineQueryResultArticle(
+		id=timestamp8601,
+		input_message_content=InputTextMessageContent(
+			text,
+			parse_mode=kwargs.get('parse_mode', None),
+			disable_web_page_preview==kwargs.get('disable_preview', None))))
 
 
 def _send_debug(kind, content):

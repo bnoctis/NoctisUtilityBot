@@ -2,6 +2,11 @@ import json
 import datetime
 
 
+def timestamp8601():
+	'''Returns a timestamp in ISO 8601 format.'''
+	return datetime.datetime.now().isoformat()
+
+
 def _make_json(data, status=200, headers=None):
 	'''Make a Flask (Werkzeug) response with JSON data and content-type.
 	A `timestamp` field with the time of invocation in ISO 8601 format will be
@@ -14,7 +19,7 @@ def _make_json(data, status=200, headers=None):
 	'''
 	data = data.copy()
 	if 'timestamp' not in data:
-		data['timestamp'] = datetime.datetime.now().isoformat()
+		data['timestamp'] = timestamp8601()
 	result = json.dumps(data, indent=2)
 	if headers:
 		headers = headers.copy()
