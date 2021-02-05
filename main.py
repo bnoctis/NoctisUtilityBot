@@ -47,7 +47,7 @@ def on_control(action, request):
 			'commands': bot.commands
 		}
 	elif action == 'env':
-		result = { 'env': os.environ }
+		result = { 'env': os.environ.copy() }
 
 	if not result:
 		result = {}
@@ -72,10 +72,11 @@ app = Flask(__name__)
 def on_request():
 	if request.args.get('whs', '') == WEBHOOK_SECRET:
 		on_webhook(request)
+		return 'OK'
 	elif CONTROL_SECRET and request.args.get('ctrl', '') == CONTROL_SECRET:
-		on_control(request.args.get('action'), request)
+		return on_control(request.args.get('action'), request)
 	else:
-		on_info(request.args.get('action'), request)
+		return on_info(request.args.get('action'), request)
 
 
 def local():
