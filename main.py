@@ -88,7 +88,7 @@ def _make_json(data, status=200, headers=None):
 
 
 def _dict_map(iterable):
-	return [i for i in map(lambda v: v.to_dict()))]
+	return [i for i in map(lambda v: v.to_dict())]
 
 
 def on_control(action, request):
