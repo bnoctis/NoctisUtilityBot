@@ -42,7 +42,7 @@ class DescribedCommandHandler(CommandHandler):
 
 	Use `updateCommands` to `setMyCommands` all registered commands.
 	'''
-	def __init__(self, description=None, *args, **kwargs):
+	def __init__(self, *args, description=None, **kwargs):
 		super().__init__(*args, **kwargs)
 		self.description = description
 DCommandHandler = DescribedCommandHandler
@@ -96,31 +96,31 @@ def add_command(command, description=None):
 
 	def _add_command(handler_func):
 		dispatcher.add_handler(
-			DCommandHandler(command, description=description, handler_func))
+			DCommandHandler(command, handler_func, description=description))
 	return _add_command
 
 
-def sendMessage(**args):
+def sendMessage(**kwargs):
 	'''Patched `telegram.Bot.send_message`.
 	Currently provides a shorthand for `parse_mode='MarkdownV2'`.
 
 	:param parse_mode: Optional. Pass `md` for `MarkdownV2`.
-	:param **args: The same as `telegram.Bot.send_message`.
+	:param **kwargs: The same as `telegram.Bot.send_message`.
 	'''
-	if args.get('parse_mode', None) == 'md':
-		args['parse_mode'] = 'MarkdownV2'
-	bot.sendMessage(**args)
+	if kwargs.get('parse_mode', None) == 'md':
+		kwargs['parse_mode'] = 'MarkdownV2'
+	bot.sendMessage(**kwargs)
 
 
-def replyMessage(update, **args):
+def replyMessage(update, **kwargs):
 	'''Reply to the message brought by `update`.
 
 	:param update: The update containing the message to reply to.
-	:param **args: The same as `sendMessage`.
+	:param **kwargs: The same as `sendMessage`.
 	'''
 	sendMessage(chat_id=update.effective_chat.id,
 		reply_to_message_id=update.effective_message.message_id,
-		**args)
+		**kwargs)
 
 
 def _send_debug(kind, content):
@@ -152,6 +152,6 @@ def on_request():
 		from control import on_control
 		return on_control(request.args.get('action'), request)
 	else:
-		from control import on_info
+		from info import on_info
 		return on_info(request.args.get('action'), request)
 
