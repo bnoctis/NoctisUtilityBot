@@ -10,11 +10,12 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 
 
 BOT_TOKEN = os.getenv('BOT_TOKEN')
+if not BOT_TOKEN:
+	exit(logging.error('BOT_TOKEN not set.'))
 CONTROL_SECRET = os.getenv('CONTROL_SECRET')
 WEBHOOK_SECRET = os.getenv('WEBHOOK_SECRET')
 if not WEBHOOK_SECRET:
-	logging.error('WEBHOOK_SECRET not set.')
-	exit()
+	exit(logging.error('WEBHOOK_SECRET not set.'))
 
 
 updater = Updater(token=os.getenv('BOT_TOKEN'))
@@ -72,11 +73,11 @@ def on_request():
 	if request.args.get('whs', '') == WEBHOOK_SECRET:
 		on_webhook(request)
 	elif CONTROL_SECRET and request.args.get('ctrl', '') == CONTROL_SECRET:
-		on_control(args.get('action'), request)
+		on_control(request.args.get('action'), request)
 	else:
-		on_info(args.get('action'), request)
+		on_info(request.args.get('action'), request)
 
 
-def main():
+def local():
 	updater.start_polling()
 	app.run()
