@@ -1,4 +1,5 @@
-from bot import bot, updater, app, add_command, add_inline_query, _send_debug
+from bot import bot, updater, app, _send_debug
+from bot import add_command, add_inline_query, update_inline_queries
 from bot import replyMessage, answerInlineQueryInText
 from modules.bilibili import b23_to_full_clear
 
@@ -24,9 +25,12 @@ Lang code:\t{}'''.format(user.id,
 		not_set(user.username), not_set(user.language_code)), parse_mode='md')
 
 
-@add_inline_query()
+@add_inline_query(title='b23.tv',
+	description='Transform b23.tv links to normal bilibili.com links',
+	pattern='https://b23.tv/([a-zA-Z0-9]{6,16})')
 def on_inline_query(update, context):
-	iq = update.inline_query
-	query = iq.query.lstrip()
-	if query.startsWith('https://b23.tv'):
-		answerInlineQueryInText(update, b23_to_full_clear(query))
+	answerInlineQueryInText(update, {
+		'title': 'b23.tv',
+		'text': b23_to_full_clear(update.inline_query.query.strip())})
+
+update_inline_queries()

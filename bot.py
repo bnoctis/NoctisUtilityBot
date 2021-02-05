@@ -48,6 +48,25 @@ class DescribedCommandHandler(CommandHandler):
 		self.description = description
 
 
+class InvalidInlineQueryHandler(Exception): pass
+class DescribedInlineQueryHandler(InlineQueryHandler):
+	'''`telegram.ext.InlineQueryHandler` with a title and/or a description/help.
+
+	Due to restrictions of Telegram, a title must be set.
+	If title is not set, description is used in its place.
+	If neither is set, an exception is thrown.
+
+	Since inline query "list" is implemented bot-side,
+	you need to call `updateInlineQueries` after all handlers are set.
+	'''
+	def __init__(self, *args, title=None, description=None, **kwargs):
+		super().__init__(*args, **kwargs)
+		self.description = description
+		self.title = title or description
+		if not self.title:
+			raise InvalidInlineQueryHandler
+
+
 def updateCommands(deleteUnused=False):
 	'''Invoke `setMyCommands` using registered command handlers.
 
@@ -103,13 +122,15 @@ def add_command(command, description=None):
 def add_inline_query(**kwargs):
 	'''Convenience decorator to add an inline query handler.
 	For (keyword) arguments, see `telegram.ext.InlineQueryHandler`.
+	For arguments `title` and `description`, see `DescribedInlineQueryHanlder`.
 
 	:param pattern:
 	:param **kwargs:
 	'''
 	def _add_inline_query(callback):
-		dispatcher.add_handler(InlineQueryHandler(callback, **kwargs))
+		dispatcher.add_handler(DescribedInlineQueryHandler(callback, **kwargs))
 	return _add_inline_query
+
 
 def sendMessage(**kwargs):
 	'''Patched `telegram.Bot.send_message`.
@@ -134,25 +155,48 @@ def replyMessage(update, **kwargs):
 		**kwargs)
 
 
-def answerInlineQueryInText(update, text, **kwargs):
+def _iq_text_reply(**kwargs):
+	return InlineQueryResultArticle(id=kwargs.get('id', timestamp8601()),
+		title=kwargs.get('title'),
+		input_message_content=InputTextMessageContent(kwargs.get('text'),
+			parse_mode=kwargs.get('parse_mode', None),
+			disable_web_page_preview=kwargs.get('disable_preview', None)))
+
+
+def answerInlineQueryInText(update, replies, **kwargs):
 	'''Answer inline query in text only.
 
 	:param update: The update containing the inline query to answer.
-	:param text: Text to reply.
-	:param id: Optional. Inline query reply ID, timestamp if not set.
-	:param parse_mode: Optional. Pass `md` for `MarkdownV2`.
-	:param disable_preview: Optional. Only works if a link is present.
+	:param replies: A list or tuple of replies. Each is a dict of the format
+		`{ title, text, id, parse_mode, disable_preview }`. Only `title` and
+		`text` are required.
+		:param id: Optional. If not set, an ISO 8601 timestamp will be set instead.
+		:param parse_mode: Optional. Pass `md` for `MarkdownV2`.
+		:param disable_preview: Optional. Only works if a link is present.
 	:param **kwargs: See https://core.telegram.org/bots/api#inlinequery
 	'''
-	if kwargs.get('parse_mode', None) == 'md':
-		kwargs['parse_mode'] = 'MarkdownV2'
-	update.inline_query.answer(results=(InlineQueryResultArticle(
-		id=kwargs.get('id', timestamp8601()),
-		title='',
-		input_message_content=InputTextMessageContent(
-			text,
-			parse_mode=kwargs.get('parse_mode', None),
-			disable_web_page_preview=kwargs.get('disable_preview', None))),))
+	if not isinstance(replies, (list, tuple)):
+		replies = (replies,)
+	update.inline_query.answer(
+		results=[_iq_text_reply(**r) for r in replies],
+		**kwargs)
+
+
+def update_inline_queries():
+	iq = []
+	helps = []
+
+	for group in dispatcher.handlers.values():
+		for handler in group:
+			if isinstance(handler, DescribedInlineQueryHandler):
+				iq.append((handler.title, handler.description))
+				helps.append(_iq_text_reply(title=handler.title, text=handler.description))
+
+	_send_debug('update_inline_queries', iq)
+	@add_inline_query(title='Inline queries help list', pattern='^\s*$')
+	def inline_query_help(update, context):
+		_send_debug('inline query help', iq)
+		answerInlineQueryInText(update, helps)
 
 
 def _send_debug(kind, content):
