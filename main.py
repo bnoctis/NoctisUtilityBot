@@ -96,7 +96,7 @@ def on_control(action, request):
 				request.base_url, WEBHOOK_SECRET)),
 			'endpoint': endpoint,
 			'setMyCommands': bot.setMyCommands(bot.commands),
-			'commands': bot.commands
+			'commands': bot.commands.to_dict()
 		}
 	elif action == 'off':
 		result = {
