@@ -16,10 +16,11 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 BOT_TOKEN = os.getenv('BOT_TOKEN')
 if not BOT_TOKEN:
 	exit(logging.error('BOT_TOKEN not set.'))
-CONTROL_SECRET = os.getenv('CONTROL_SECRET')
 WEBHOOK_SECRET = os.getenv('WEBHOOK_SECRET')
 if not WEBHOOK_SECRET:
 	exit(logging.error('WEBHOOK_SECRET not set.'))
+CONTROL_SECRET = os.getenv('CONTROL_SECRET')
+DEBUG_CHAT = os.getenv('DEBUG_CHAT')
 updater = Updater(token=os.getenv('BOT_TOKEN'))
 dispatcher = updater.dispatcher
 bot = updater.bot
@@ -72,7 +73,11 @@ def replyMessage(update, **args):
 
 
 def on_webhook(request):
-	update = Update.de_json(request.get_json(force=True), bot)
+	data = request.get_json(force=True)
+	if DEBUG_CHAT:
+		sendMessage(chat_id=DEBUG_CHAT, text='webhook update\n\n```\n{}\n```'.format(
+				json.dumps(data, indent=2)), parse_mode='md')
+	update = Update.de_json(data, bot)
 	dispatcher.process_update(update)
 
 
