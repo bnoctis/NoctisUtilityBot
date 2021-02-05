@@ -12,7 +12,7 @@ def c_start(update, context):
 @add_command('me', 'Show information about your account.')
 def c_who(update, context):
 	user = update.effective_user
-	unset = lambda i: i or '\\_unset_'
+	unset = lambda i: i or '\\_unset_\\'
 	replyMessage(update, text='''Information of your account:
 ID:\t{}
 First name:\t{}
