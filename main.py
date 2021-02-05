@@ -87,6 +87,10 @@ def _make_json(data, status=200, headers=None):
 	return (result, status, headers)
 
 
+def _dict_map(iterable):
+	return [i for i in map(lambda v: v.to_dict()))]
+
+
 def on_control(action, request):
 	result = None
 	if action == 'on':
@@ -96,7 +100,7 @@ def on_control(action, request):
 				request.base_url, WEBHOOK_SECRET)),
 			'endpoint': endpoint,
 			'setMyCommands': bot.setMyCommands(bot.commands),
-			'commands': map(lambda c: c.to_dict(), bot.commands)
+			'commands': _dict_map(bot.commands)
 		}
 	elif action == 'off':
 		result = {
