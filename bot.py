@@ -95,7 +95,7 @@ def add_command(command, description=None):
 
 	def _add_command(handler_func):
 		dispatcher.add_handler(
-			DCommandHandler(command, handler_func, description=description))
+			DescribedCommandHandler(command, handler_func, description=description))
 	return _add_command
 
 
