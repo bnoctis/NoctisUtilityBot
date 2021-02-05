@@ -12,7 +12,9 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 BOT_TOKEN = os.getenv('BOT_TOKEN')
 CONTROL_SECRET = os.getenv('CONTROL_SECRET')
 WEBHOOK_SECRET = os.getenv('WEBHOOK_SECRET')
-_WEBHOOK_PATH = '/' + WEBHOOK_SECRET
+if not WEBHOOK_SECRET:
+	logging.error('WEBHOOK_SECRET not set.')
+	exit()
 
 
 updater = Updater(token=os.getenv('BOT_TOKEN'))
@@ -32,14 +34,10 @@ def _make_json(data, status=200, headers=None):
 	return (result, status, headers)
 
 
-def on_control(action):
+def on_control(action, request):
 	result = None
 	if action == 'on':
 		endpoint = '{}?whs={}'.format(request.base_url, WEBHOOK_SECRET)
-		if endpoint.startswith('http://'):
-			endpoint = endpoint.replace('http://', 'https://')
-		elif not endpoint.startswith('https'):
-			endpoint = 'https://' + endpoint
 		result = {
 			'setWebhook': bot.setWebhook('{}?whs={}'.format(
 				request.base_url, WEBHOOK_SECRET)),
@@ -52,21 +50,27 @@ def on_control(action):
 	return _make_json(result)
 
 
-def on_info(action):
+def on_info(action, request):
 	result = { 'hello': request.remote_addr }
 	return _make_json(result)
 
 
-def on_webhook():
+def on_webhook(request):
 	update = Update.de_json(request.get_json(force=True), bot)
 	dispatcher.process_update(update)
 
 
 app = Flask(__name__)
-app.route(_WEBHOOK_PATH)(on_webhook)
-app.route('/info/<action>')(on_info)
-if CONTROL_SECRET:
-	app.route('/ctrl/{}/<action>'.format(CONTROL_SECRET))(on_info)
+
+
+@app.route('/')
+def on_request():
+	if request.args.get('whs', '') == WEBHOOK_SECRET:
+		on_webhook(request)
+	elif CONTROL_SECRET and request.args.get('ctrl', '') == CONTROL_SECRET:
+		on_control(args.get('action'), request)
+	else:
+		on_info(args.get('action'), request)
 
 
 def main():
