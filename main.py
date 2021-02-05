@@ -9,6 +9,10 @@ import logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 
 
+###
+### Preperations
+###
+
 BOT_TOKEN = os.getenv('BOT_TOKEN')
 if not BOT_TOKEN:
 	exit(logging.error('BOT_TOKEN not set.'))
@@ -16,11 +20,59 @@ CONTROL_SECRET = os.getenv('CONTROL_SECRET')
 WEBHOOK_SECRET = os.getenv('WEBHOOK_SECRET')
 if not WEBHOOK_SECRET:
 	exit(logging.error('WEBHOOK_SECRET not set.'))
-
-
 updater = Updater(token=os.getenv('BOT_TOKEN'))
 dispatcher = updater.dispatcher
 bot = updater.bot
+
+
+###
+### Helper functions
+###
+
+
+def add_command(command):
+	def _add_command():
+		dispatcher.add_handler(CommandHandler(command, handler_func))
+	return _add_command
+
+
+def replyMessage(update, **args):
+	if args.get('parse_mode', None) == 'md':
+		args['parse_mode'] = 'MarkdownV2'
+	bot.sendMessage(
+		chat_id=update.effective_chat.id,
+		reply_to_message_id=update.effective_message.id,
+		**args)
+
+
+###
+### >>> Main code for bot
+###
+
+
+@add_command('start')
+def c_start(update, context):
+	user = update.effective_user
+	replyMessage(update, text='Hello, {}'.format(
+		user.first_name or user.last_name or user.username))
+
+
+@add_command('me')
+def c_who(update, context):
+	user = update.effective_user
+	unset = lambda i: '_{}_'.format(i)
+	replyMessage(update, text='''Information of your account:
+ID:\t{}
+First name:\t{}
+Last name:\t{}
+Username:\t{}
+Lang code:\t{}'''.format(user.id,
+		unset(user.first_name), unset(user.last_name),
+		unset(user.username), unset(user.language_code)), parse_mode='md')
+
+###
+### "Low level" implementation details
+###
 
 
 def _make_json(data, status=200, headers=None):
@@ -52,7 +104,7 @@ def on_control(action, request):
 		}
 	elif action == 'hookInfo':
 		result = {
-			'hookInfo': bot.getWebhookInfo()
+			'hookInfo': bot.getWebhookInfo().to_dict()
 		}
 	elif action == 'env':
 		result = { 'env': os.environ.copy() }
