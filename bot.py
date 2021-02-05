@@ -45,7 +45,6 @@ class DescribedCommandHandler(CommandHandler):
 	def __init__(self, *args, description=None, **kwargs):
 		super().__init__(*args, **kwargs)
 		self.description = description
-DCommandHandler = DescribedCommandHandler
 
 
 def updateCommands(deleteUnused=False):
@@ -54,28 +53,29 @@ def updateCommands(deleteUnused=False):
 	:param deleteUnused: Delete those not registered in this bot instance.
 	'''
 	registered = []
-	for handler in dispatcher.handlers:
-		if isinstance(handler, DCommandHandler) and handler.description:
-			if isinstance(handler.command, str):
-				registered.append((handler.command, handler.description))
-			else:
-				# XXX: Is there a better way to specify one description for
-				# each command of a handler? A dict?
-				for command in handler.command:
-					registered.append((command, handler.description))
+	for group in dispatcher.handlers:
+		for handler in group:
+			if isinstance(handler, DescribedCommandHandler) and handler.description:
+				if isinstance(handler.command, str):
+					registered.append((handler.command, handler.description))
+				else:
+					# XXX: Is there a better way to specify one description for
+					# each command of a handler? A dict?
+					for command in handler.command:
+						registered.append((command, handler.description))
 
 	if not deleteUnused:
 		lastSet = _dict_map(bot.commands)
 		for lastItem in lastSet:
 			unused = True
 			for item in registered:
-				if item['command'] == lastItem['command']:
+				if item[0] == lastItem.command:
 					unused = False
 					break
 			if unused:
 				registered.append(lastItem)
 
-	bot.setMyCommands(commands=registered)
+	return bot.setMyCommands(commands=registered)
 
 
 def add_command(command, description=None):
