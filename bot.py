@@ -53,7 +53,7 @@ def updateCommands(deleteUnused=False):
 	:param deleteUnused: Delete those not registered in this bot instance.
 	'''
 	registered = []
-	for group in dispatcher.handlers:
+	for group in dispatcher.handlers.items():
 		for handler in group:
 			if isinstance(handler, DescribedCommandHandler) and handler.description:
 				if isinstance(handler.command, str):
