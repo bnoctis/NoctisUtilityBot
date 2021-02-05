@@ -41,7 +41,7 @@ def replyMessage(update, **args):
 		args['parse_mode'] = 'MarkdownV2'
 	bot.sendMessage(
 		chat_id=update.effective_chat.id,
-		reply_to_message_id=update.effective_message.id,
+		reply_to_message_id=update.effective_message.message_id,
 		**args)
 
 
