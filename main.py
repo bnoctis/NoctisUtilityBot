@@ -31,7 +31,7 @@ bot = updater.bot
 
 
 def add_command(command):
-	def _add_command():
+	def _add_command(handler_func):
 		dispatcher.add_handler(CommandHandler(command, handler_func))
 	return _add_command
 
