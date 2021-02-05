@@ -138,7 +138,7 @@ def on_webhook(request):
 app = Flask(__name__)
 
 
-@app.route('/')
+@app.route('/', methods=('GET', 'POST'))
 def on_request():
 	if request.args.get('whs', '') == WEBHOOK_SECRET:
 		on_webhook(request)
