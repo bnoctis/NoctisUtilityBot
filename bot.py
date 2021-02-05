@@ -137,7 +137,7 @@ def on_webhook(request):
 			dispatcher.process_update(update)
 		except Exception as e:
 			_send_debug('webhook exception: upd {}'.format(update.update_id), e)
-			throw e
+			raise e
 	else:
 		dispatcher.process_update(update)
 
