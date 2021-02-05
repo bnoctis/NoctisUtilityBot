@@ -12,12 +12,12 @@ def c_start(update, context):
 @add_command('me', 'Show information about your account.')
 def c_who(update, context):
 	user = update.effective_user
-	unset = lambda i: i or '_unset_'
+	not_set = lambda i: i or '_not set_'
 	replyMessage(update, text='''Information of your account:
 ID:\t{}
 First name:\t{}
 Last name:\t{}
 Username:\t{}
 Lang code:\t{}'''.format(user.id,
-		unset(user.first_name), unset(user.last_name),
-		unset(user.username), unset(user.language_code)), parse_mode='md')
+		not_set(user.first_name), not_set(user.last_name),
+		not_set(user.username), not_set(user.language_code)), parse_mode='md')
