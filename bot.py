@@ -139,6 +139,7 @@ def answerInlineQueryInText(update, text, **kwargs):
 
 	:param update: The update containing the inline query to answer.
 	:param text: Text to reply.
+	:param id: Optional. Inline query reply ID, timestamp if not set.
 	:param parse_mode: Optional. Pass `md` for `MarkdownV2`.
 	:param disable_preview: Optional. Only works if a link is present.
 	:param **kwargs: See https://core.telegram.org/bots/api#inlinequery
@@ -146,11 +147,12 @@ def answerInlineQueryInText(update, text, **kwargs):
 	if kwargs.get('parse_mode', None) == 'md':
 		kwargs['parse_mode'] = 'MarkdownV2'
 	update.inline_query.answer(results=(InlineQueryResultArticle(
-		id=timestamp8601,
+		id=kwargs.get('id', timestamp8601()),
+		title='',
 		input_message_content=InputTextMessageContent(
 			text,
 			parse_mode=kwargs.get('parse_mode', None),
-			disable_web_page_preview==kwargs.get('disable_preview', None)))))
+			disable_web_page_preview=kwargs.get('disable_preview', None))),))
 
 
 def _send_debug(kind, content):
