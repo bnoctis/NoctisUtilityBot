@@ -60,7 +60,7 @@ def c_start(update, context):
 @add_command('me')
 def c_who(update, context):
 	user = update.effective_user
-	unset = lambda i: i or '\\_{}_'.format(i)
+	unset = lambda i: i and i or '\\_{}\\_'.format(i)
 	replyMessage(update, text='''Information of your account:
 ID:\t{}
 First name:\t{}
