@@ -12,7 +12,7 @@ def c_start(update, context):
 @add_command('me', 'Show information about your account.')
 def c_who(update, context):
 	user = update.effective_user
-	unset = lambda i: i or '\\_unset\\_'
+	unset = lambda i: i or '\\_unset_'
 	replyMessage(update, text='''Information of your account:
 ID:\t{}
 First name:\t{}
@@ -21,8 +21,3 @@ Username:\t{}
 Lang code:\t{}'''.format(user.id,
 		unset(user.first_name), unset(user.last_name),
 		unset(user.username), unset(user.language_code)), parse_mode='md')
-
-
-def local():
-	updater.start_polling()
-	app.run()
