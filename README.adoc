@@ -1,0 +1,7 @@
+= NoctisUtilityBot
+
+A utility bot for Telegram.
+
+== License
+
+Licensed under GPLv3.
