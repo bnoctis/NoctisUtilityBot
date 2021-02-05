@@ -54,16 +54,15 @@ def updateCommands(deleteUnused=False):
 	:param deleteUnused: Delete those not registered in this bot instance.
 	'''
 	registered = []
-	for group in dispatcher.groups:
-		for handler in group:
-			if isinstance(handler, DCommandHandler) and handler.description:
-				if isinstance(handler.command, str):
-					registered.append((handler.command, handler.description))
-				else:
-					# XXX: Is there a better way to specify one description for
-					# each command of a handler? A dict?
-					for command in handler.command:
-						registered.append((command, handler.description))
+	for handler in dispatcher.handlers:
+		if isinstance(handler, DCommandHandler) and handler.description:
+			if isinstance(handler.command, str):
+				registered.append((handler.command, handler.description))
+			else:
+				# XXX: Is there a better way to specify one description for
+				# each command of a handler? A dict?
+				for command in handler.command:
+					registered.append((command, handler.description))
 
 	if not deleteUnused:
 		lastSet = _dict_map(bot.commands)
