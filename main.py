@@ -46,6 +46,14 @@ def on_control(action, request):
 			'setMyCommands': bot.setMyCommands(bot.commands),
 			'commands': bot.commands
 		}
+	elif action == 'off':
+		result = {
+			'deleteWebhook': bot.deleteWebhook()
+		}
+	elif action == 'hookInfo':
+		result = {
+			'hookInfo': bot.getWebhookInfo()
+		}
 	elif action == 'env':
 		result = { 'env': os.environ.copy() }
 
@@ -56,7 +64,13 @@ def on_control(action, request):
 
 
 def on_info(action, request):
-	result = { 'hello': request.remote_addr }
+	if action == 'base_url':
+		result = {
+			'base_url': request.base_url
+		}
+	else:
+		result = { 'hello': request.remote_addr }
+	result['action'] = action
 	return _make_json(result)
 
 
