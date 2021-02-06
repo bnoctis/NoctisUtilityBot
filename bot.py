@@ -9,7 +9,7 @@ from telegram import Message, Update
 from telegram import InlineQueryResultArticle, InputTextMessageContent
 from telegram.ext import Updater, CommandHandler, InlineQueryHandler
 import db
-from utils import _dict_map, timestamp8601, escape_markdown
+from utils import _dict_map, timestamp8601, escape_md
 
 
 ###
@@ -66,7 +66,7 @@ class DescribedCountedCommandHandler(CommandHandler):
 	'''
 
 	SPACE_RE = re.compile(r'\s')
-	def __init__(self, *args, description=None, **kwargs):
+	def __init__(self, *args, description='', **kwargs):
 		super().__init__(*args, **kwargs)
 		self.description = description
 
@@ -93,7 +93,7 @@ class DescribedCountedInlineQueryHandler(InlineQueryHandler):
 
 	Due to restrictions of Telegram, a title must be set.
 	'''
-	def __init__(self, *args, title, description=None, **kwargs):
+	def __init__(self, *args, title, description='', **kwargs):
 		super().__init__(*args, **kwargs)
 		self.title = title
 		self.description = description
@@ -137,7 +137,7 @@ def updateCommands(deleteUnused=False):
 	return bot.setMyCommands(commands=registered)
 
 
-def add_command(command, description=None):
+def add_command(command, description=''):
 	'''Convenience decorator to add a command handler.
 
 	Usage:
@@ -325,7 +325,7 @@ _Inline queries_
 {}
 _Control commands_
 {}'''.format(
-		'\n'.join('*{}* {}'.format(i[0], i[0]) for i in commands),
+		'\n'.join('*{}* {}'.format(i[0], i[1]) for i in commands),
 		'\n'.join('*{}* {}'.format(i[0], i[1]) for i in inline_queries),
 		'\n'.join('*{}* {}'.format(i[0], i[1]) for i in control_commands),
 	), parse_mode='md')
@@ -351,7 +351,6 @@ def sendMessage(**kwargs):
 	'''
 	if kwargs.get('parse_mode', None) == 'md':
 		kwargs['parse_mode'] = 'MarkdownV2'
-		kwargs['text'] = escape_markdown(kwargs['text'])
 	bot.sendMessage(**kwargs)
 
 
@@ -369,7 +368,6 @@ def replyMessage(update, **kwargs):
 def _iq_text_reply(**kwargs):
 	if kwargs.get('parse_mode', None) == 'md':
 		kwargs['parse_mode'] = 'MarkdownV2'
-		kwargs['text'] = escape_markdown(kwargs['text'])
 	return InlineQueryResultArticle(id=kwargs.get('id', timestamp8601()),
 		title=kwargs.get('title'),
 		input_message_content=InputTextMessageContent(kwargs.get('text'),

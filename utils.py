@@ -1,6 +1,6 @@
 import json
 import datetime
-from telegram.utils.helpers import escape_markdown as _escape_md
+from telegram.utils.helpers import escape_markdown as _ptb_escape_markdown
 
 
 def timestamp8601():
@@ -37,5 +37,5 @@ def _dict_map(iterable):
 	return [i for i in map(lambda v: v.to_dict(), iterable)]
 
 
-def escape_markdown(text):
-	return _escape_md(text, version=2)
+def escape_md(text):
+	return _ptb_escape_markdown(text, version=2)
