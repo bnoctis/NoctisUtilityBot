@@ -74,9 +74,17 @@ class DescribedCountedCommandHandler(CommandHandler):
 		super().handle_update(update, *args, **kwargs)
 		# Convenience attribute for text after the command.
 		text = update.effective_message.text
-		update.effective_message.after_text = text[self.SPACE_RE.search(text).end():]
+		search = self.SPACE_RE.search(text)
+		for command in self.command:
+			if '/{}'.format(command) in text:
+				update.effective_message.command = command
+				_increment_usage_count('command', command)
+				break
+		if search:
+			update.effective_message.after_text = text[search.end():]
+		else:
+			update.effective_message.after_text = ''
 
-		_increment_usage_count('command', self.command)
 
 
 class InvalidInlineQueryHandler(Exception): pass
@@ -261,13 +269,13 @@ def get_most_used(kind, n):
 	elif kind == 'inline_query':
 		descriptions = inline_queries
 	sorted_counts = sorted(counts.keys(), reverse=True)
-	for count, counted in sorted_counts.items():
-		for item in counted:
+	for count in sorted_counts:
+		for item in counts[count]:
 			for described in descriptions:
 				if described[0] == item:
 					muc.append({
 						'count': count,
-						'command': item,
+						kind: item,
 						'description': described[1]
 					})
 					n_muc += 1
@@ -300,7 +308,7 @@ def update_most_used_commands(n=None):
 		'description': desc
 	}))
 
-	bot.setMyCommands(commands=get_most_used_commands)
+	bot.setMyCommands(commands=update)
 
 
 def set_command_list_count(count):
@@ -326,13 +334,12 @@ _Control commands_
 @add_command('most_used')
 def c_most_used(update, context):
 	text = 'Most used commands:'
-	for count, commands in get_most_used('command', '*').items():
-		for command in commands:
-			text += '\n{}\t{}'.format(count, command)
-	text += 'Most used inline queries:'
-	for count, queries in get_most_used('inline_queries', '*').items():
-		for query in inline_queries:
-			text += '\n{}\t{}'.format(count, query)
+	for item in get_most_used('command', '*'):
+		text += '\n{}\t{}'.format(item['count'], item['command'])
+	text += '\nMost used inline queries:'
+	for item in get_most_used('inline_queries', '*'):
+		text += '\n{}\t{}'.format(item['count'], item['query'])
+	replyMessage(update, text=text)
 
 
 def sendMessage(**kwargs):
