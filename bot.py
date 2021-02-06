@@ -325,9 +325,9 @@ _Inline queries_
 {}
 _Control commands_
 {}'''.format(
-		'\n'.join('*{}* {}'.format(i[0], i[1]) for i in commands),
-		'\n'.join('*{}* {}'.format(i[0], i[1]) for i in inline_queries),
-		'\n'.join('*{}* {}'.format(i[0], i[1]) for i in control_commands),
+		'\n'.join('*{}* {}'.format(i[0], escape_md(i[1])) for i in commands),
+		'\n'.join('*{}* {}'.format(i[0], escape_md(i[1])) for i in inline_queries),
+		'\n'.join('*{}* {}'.format(i[0], escape_md(i[1])) for i in control_commands),
 	), parse_mode='md')
 
 
