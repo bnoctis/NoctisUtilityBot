@@ -9,7 +9,7 @@ from telegram import Message, Update
 from telegram import InlineQueryResultArticle, InputTextMessageContent
 from telegram.ext import Updater, CommandHandler, InlineQueryHandler
 import db
-from utils import _dict_map, timestamp8601
+from utils import _dict_map, timestamp8601, escape_markdown
 
 
 ###
@@ -344,6 +344,7 @@ def sendMessage(**kwargs):
 	'''
 	if kwargs.get('parse_mode', None) == 'md':
 		kwargs['parse_mode'] = 'MarkdownV2'
+		kwargs['text'] = escape_markdown(kwargs['text'])
 	bot.sendMessage(**kwargs)
 
 
@@ -359,6 +360,9 @@ def replyMessage(update, **kwargs):
 
 
 def _iq_text_reply(**kwargs):
+	if kwargs.get('parse_mode', None) == 'md':
+		kwargs['parse_mode'] = 'MarkdownV2'
+		kwargs['text'] = escape_markdown(kwargs['text'])
 	return InlineQueryResultArticle(id=kwargs.get('id', timestamp8601()),
 		title=kwargs.get('title'),
 		input_message_content=InputTextMessageContent(kwargs.get('text'),
