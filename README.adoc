@@ -1,6 +1,23 @@
 = NoctisUtilityBot
 
-A utility bot for Telegram.
+A utility bot.
+
+== Usage
+
+- `pip install -r requirements.txt`
+- Set the enviroment variables:
+ * `BOT_TOKEN`
+ * `WEBHOOK_SECRET`
+ * `CONTROL_SECRET` optional, no HTTP API control actions if not set.
+ * `DEBUG_CHAT` optional, no control commands or debug output if not set.
+ * `COMMAND_LIST_COUNT` optional, defaults to 5.
+- Start the app.
+ * With `gunicorn`: `gunicorn main:app`
+ * On Heroku: A `Procfile` is provided.
+- Set up webhook.
+ * With `CONTROL_SECRET` set:
+ `curl https://YOUR_DEPLOYMENT?ctrl=CONTROL_SECRET&action=on`
+ * Otherwise: `curl https://api.telegram.org/botBOT_TOKEN/setWebhook -d url="https://YOUR_DEPLOYMENT?whs=WEBHOOK_SECRET"`
 
 == License
 

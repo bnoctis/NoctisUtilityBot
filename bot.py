@@ -24,12 +24,13 @@ WEBHOOK_SECRET = os.getenv('WEBHOOK_SECRET')
 if not WEBHOOK_SECRET:
 	exit(logging.error('WEBHOOK_SECRET not set.'))
 CONTROL_SECRET = os.getenv('CONTROL_SECRET')
-DEBUG_CHAT = os.getenv('DEBUG_CHAT')
+DEBUG_CHAT = os.getenv('DEBUG_CHAT', None)
 # Chat IDs may be int or str.
 if DEBUG_CHAT:
 	try:
 		DEBUG_CHAT = int(DEBUG_CHAT)
-	except: pass
+	except ValueError:
+		pass
 # NOTE: This count is changeable, through a control command.
 COMMAND_LIST_COUNT = os.getenv('COMMAND_LIST_COUNT', 5)
 
